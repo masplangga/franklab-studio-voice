@@ -1,28 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
-function pcmToWav(pcmBuffer: Buffer, sampleRate = 24000, channels = 1, bitDepth = 16) {
-  const byteRate = sampleRate * channels * (bitDepth / 8);
-  const blockAlign = channels * (bitDepth / 8);
-  const wavHeader = Buffer.alloc(44);
-
-  wavHeader.write("RIFF", 0);
-  wavHeader.writeUInt32LE(36 + pcmBuffer.length, 4);
-  wavHeader.write("WAVE", 8);
-  wavHeader.write("fmt ", 12);
-  wavHeader.writeUInt32LE(16, 16);
-  wavHeader.writeUInt16LE(1, 20);
-  wavHeader.writeUInt16LE(channels, 22);
-  wavHeader.writeUInt32LE(sampleRate, 24);
-  wavHeader.writeUInt32LE(byteRate, 28);
-  wavHeader.writeUInt16LE(blockAlign, 32);
-  wavHeader.writeUInt16LE(bitDepth, 34);
-  wavHeader.write("data", 36);
-  wavHeader.writeUInt32LE(pcmBuffer.length, 40);
-
-  return Buffer.concat([wavHeader, pcmBuffer]);
+export async function POST() {
+  return NextResponse.json({
+    apiKeyExists: !!process.env.GEMINI_API_KEY,
+    apiKeyLength: process.env.GEMINI_API_KEY?.length || 0,
+    apiKeyValue: JSON.stringify(process.env.GEMINI_API_KEY),
+  });
 }
-
 export async function POST(req: Request) {
   try {
     const { text, voice } = await req.json();
