@@ -7,14 +7,11 @@ export async function GET() {
       apiKey: process.env.GEMINI_API_KEY!,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: "Halo, balas dengan kata OK",
-    });
+    const models = await ai.models.list();
 
     return NextResponse.json({
       success: true,
-      text: response.text,
+      models,
     });
   } catch (error: any) {
     return NextResponse.json({
