@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import AuthPanel from "@/components/AuthPanel";
 import VoiceCard from "@/components/VoiceCard";
+import {
+  AUTH_STORAGE_KEY,
+  type AuthSession,
+  isSupabaseAuthConfigured,
+} from "@/lib/auth";
 import { GEMINI_VOICES } from "@/lib/voices";
 
 const MAX_TEXT_LENGTH = 1500;
@@ -45,16 +51,27 @@ export default function Home() {
   const [scriptLoading, setScriptLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [history, setHistory] = useState<GenerationHistory[]>([]);
+  const [authSession, setAuthSession] = useState<AuthSession | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [accountActive, setAccountActive] = useState(false);
+  const [accountLoading, setAccountLoading] = useState(false);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       try {
+        const savedAuth = window.localStorage.getItem(AUTH_STORAGE_KEY);
+        if (savedAuth) {
+          setAuthSession(JSON.parse(savedAuth) as AuthSession);
+        }
+
         const saved = window.localStorage.getItem(HISTORY_KEY);
         if (saved) {
           setHistory(JSON.parse(saved) as GenerationHistory[]);
         }
       } catch {
         setHistory([]);
+      } finally {
+        setAuthReady(true);
       }
     }, 0);
 
@@ -73,8 +90,66 @@ export default function Home() {
     return Math.min(100, Math.round((text.length / MAX_TEXT_LENGTH) * 100));
   }, [text.length]);
 
-  const canGenerateScript = productName.trim() && productDesc.trim();
-  const canGenerateAudio = text.trim().length > 0 && !loading;
+  const hasScriptFields = Boolean(productName.trim() && productDesc.trim());
+  const canGenerateScript = hasScriptFields && accountActive;
+  const canGenerateAudio = text.trim().length > 0 && !loading && accountActive;
+  const authHeaders: Record<string, string> = authSession
+    ? { Authorization: `Bearer ${authSession.accessToken}` }
+    : {};
+
+  function handleAuthenticated(session: AuthSession) {
+    setAuthSession(session);
+    setAccountActive(false);
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
+  }
+
+  function logout() {
+    setAuthSession(null);
+    setAccountActive(false);
+    setAudioUrl("");
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+
+  useEffect(() => {
+    if (!authSession) {
+      return;
+    }
+
+    let cancelled = false;
+    const accessToken = authSession.accessToken;
+
+    async function loadAccountStatus() {
+      try {
+        setAccountLoading(true);
+        const response = await fetch("/api/me", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        const data = (await response.json().catch(() => null)) as
+          | { isActive?: boolean; error?: string }
+          | null;
+
+        if (!cancelled) {
+          setAccountActive(response.ok && data?.isActive === true);
+        }
+      } catch {
+        if (!cancelled) {
+          setAccountActive(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setAccountLoading(false);
+        }
+      }
+    }
+
+    void loadAccountStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authSession]);
 
   function saveHistory(item: GenerationHistory) {
     const nextHistory = [item, ...history].slice(0, 5);
@@ -83,8 +158,13 @@ export default function Home() {
   }
 
   async function generateScript() {
-    if (!canGenerateScript) {
+    if (!hasScriptFields) {
       setErrorMessage("Isi nama produk dan deskripsi singkat terlebih dahulu.");
+      return;
+    }
+
+    if (!accountActive) {
+      setErrorMessage("Akun kamu belum aktif. Hubungi admin untuk aktivasi.");
       return;
     }
 
@@ -96,6 +176,7 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...authHeaders,
         },
         body: JSON.stringify({
           productName,
@@ -130,6 +211,11 @@ export default function Home() {
       return;
     }
 
+    if (!accountActive) {
+      setErrorMessage("Akun kamu belum aktif. Hubungi admin untuk aktivasi.");
+      return;
+    }
+
     setLoading(true);
     setErrorMessage("");
 
@@ -152,7 +238,7 @@ ${text.trim()}
     try {
       const res = await fetch("/api/tts", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ text: styledText, voice: selectedVoice.id }),
       });
 
@@ -182,6 +268,42 @@ ${text.trim()}
     }
   }
 
+  if (!isSupabaseAuthConfigured()) {
+    return (
+      <main className="min-h-screen bg-[#070b14] px-4 py-8 text-slate-100">
+        <section className="mx-auto max-w-3xl rounded-2xl border border-slate-800 bg-slate-900/80 p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
+            Setup Auth
+          </p>
+          <h1 className="mt-2 text-2xl font-bold">Supabase belum dikonfigurasi</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-400">
+            Untuk mengaktifkan login, tambahkan environment variable berikut di
+            lokal dan Vercel, lalu restart/deploy ulang aplikasi.
+          </p>
+          <pre className="mt-5 overflow-x-auto rounded-xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-200">
+            NEXT_PUBLIC_SUPABASE_URL=https://project-id.supabase.co{"\n"}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-key-kamu
+          </pre>
+          <p className="mt-4 text-sm text-slate-500">
+            Gemini API tetap memakai GEMINI_API_KEY seperti sebelumnya.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!authReady) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#070b14] text-slate-400">
+        Memuat akun...
+      </main>
+    );
+  }
+
+  if (!authSession) {
+    return <AuthPanel onAuthenticated={handleAuthenticated} />;
+  }
+
   return (
     <main className="min-h-screen bg-[#070b14] text-slate-100">
       <div className="border-b border-slate-800 bg-slate-950/80">
@@ -196,6 +318,17 @@ ${text.trim()}
             <p className="mt-1 text-sm text-slate-400">
               Buat script, pilih karakter suara, lalu ekspor voice over siap pakai.
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+              <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1">
+                {authSession.user.email}
+              </span>
+              <button
+                onClick={logout}
+                className="rounded-full border border-slate-700 px-3 py-1 text-slate-300 transition hover:bg-slate-800"
+              >
+                Keluar
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-3 text-center">
@@ -217,6 +350,20 @@ ${text.trim()}
 
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-5 md:px-6 lg:grid-cols-12">
         <section className="space-y-5 lg:col-span-8">
+          {!accountActive && (
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-100">
+              <h2 className="text-lg font-bold">
+                {accountLoading
+                  ? "Memeriksa status akun..."
+                  : "Akun menunggu aktivasi"}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-amber-100/80">
+                Kamu sudah login, tetapi fitur generate belum aktif. Hubungi admin
+                untuk aktivasi akun setelah pembayaran atau persetujuan manual.
+              </p>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
             <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
               <div>

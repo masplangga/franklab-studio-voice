@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { checkActiveUser } from "@/lib/access";
 import { GEMINI_VOICES } from "@/lib/voices";
 
 const MAX_TTS_PROMPT_LENGTH = 2400;
@@ -81,6 +82,14 @@ function getErrorMessage(error: unknown) {
 
 export async function POST(req: Request) {
   try {
+    const access = await checkActiveUser(req);
+    if (!access.ok) {
+      return Response.json(
+        { success: false, error: access.error },
+        { status: access.status }
+      );
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       return Response.json(
         { success: false, error: "Konfigurasi API belum tersedia." },

@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { checkActiveUser } from "@/lib/access";
 
 const MAX_FIELD_LENGTH = 400;
 const allowedStyles = new Set([
@@ -29,6 +30,14 @@ function getErrorMessage(error: unknown) {
 
 export async function POST(req: Request) {
   try {
+    const access = await checkActiveUser(req);
+    if (!access.ok) {
+      return NextResponse.json(
+        { success: false, error: access.error },
+        { status: access.status }
+      );
+    }
+
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
         { success: false, error: "Konfigurasi API belum tersedia." },
