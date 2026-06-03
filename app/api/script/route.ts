@@ -1,17 +1,63 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 
+const MAX_FIELD_LENGTH = 400;
+const allowedStyles = new Set([
+  "Profesional",
+  "Santai",
+  "Storytelling",
+  "UGC",
+  "Hard Selling",
+  "Soft Selling",
+]);
+const allowedLengths = new Set(["10 Detik", "30 Detik", "60 Detik"]);
+
+type ScriptRequest = {
+  productName?: unknown;
+  productDesc?: unknown;
+  scriptStyle?: unknown;
+  scriptLength?: unknown;
+};
+
+function cleanText(value: unknown) {
+  return typeof value === "string" ? value.trim().slice(0, MAX_FIELD_LENGTH) : "";
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
 export async function POST(req: Request) {
   try {
-    const {
-      productName,
-      productDesc,
-      scriptStyle,
-      scriptLength,
-    } = await req.json();
+    if (!process.env.GEMINI_API_KEY) {
+      return NextResponse.json(
+        { success: false, error: "Konfigurasi API belum tersedia." },
+        { status: 500 }
+      );
+    }
+
+    const body = (await req.json()) as ScriptRequest;
+    const productName = cleanText(body.productName);
+    const productDesc = cleanText(body.productDesc);
+    const scriptStyle = cleanText(body.scriptStyle) || "Profesional";
+    const scriptLength = cleanText(body.scriptLength) || "30 Detik";
+
+    if (!productName || !productDesc) {
+      return NextResponse.json(
+        { success: false, error: "Nama produk dan deskripsi wajib diisi." },
+        { status: 400 }
+      );
+    }
+
+    if (!allowedStyles.has(scriptStyle) || !allowedLengths.has(scriptLength)) {
+      return NextResponse.json(
+        { success: false, error: "Pilihan gaya atau durasi tidak valid." },
+        { status: 400 }
+      );
+    }
 
     const ai = new GoogleGenAI({
-      apiKey: process.env.GEMINI_API_KEY!,
+      apiKey: process.env.GEMINI_API_KEY,
     });
 
     const prompt = `
@@ -42,14 +88,23 @@ Aturan:
       contents: prompt,
     });
 
+    if (!response.text) {
+      return NextResponse.json(
+        { success: false, error: "Script tidak ditemukan pada respons AI." },
+        { status: 502 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      script: response.text,
+      script: response.text.trim(),
     });
-  } catch (error: any) {
-    return NextResponse.json({
-      success: false,
-      error: error?.message || String(error),
-    });
+  } catch (error: unknown) {
+    console.error("Script generation failed:", getErrorMessage(error));
+
+    return NextResponse.json(
+      { success: false, error: "Gagal membuat script. Coba lagi nanti." },
+      { status: 500 }
+    );
   }
 }
