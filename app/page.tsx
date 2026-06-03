@@ -12,6 +12,7 @@ import { GEMINI_VOICES } from "@/lib/voices";
 
 const MAX_TEXT_LENGTH = 1500;
 const HISTORY_KEY = "franklab-generation-history";
+const adminContactUrl = process.env.NEXT_PUBLIC_ADMIN_CONTACT_URL || "";
 
 const emotions = [
   { id: "Netral", label: "Netral" },
@@ -361,6 +362,25 @@ ${text.trim()}
                 Kamu sudah login, tetapi fitur generate belum aktif. Hubungi admin
                 untuk aktivasi akun setelah pembayaran atau persetujuan manual.
               </p>
+              <div className="mt-4 flex flex-wrap items-center gap-3">
+                {adminContactUrl ? (
+                  <a
+                    href={adminContactUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-amber-300"
+                  >
+                    Hubungi Admin
+                  </a>
+                ) : (
+                  <span className="rounded-xl border border-amber-400/30 px-4 py-2 text-sm text-amber-100/80">
+                    Hubungi admin untuk aktivasi
+                  </span>
+                )}
+                <span className="text-xs text-amber-100/60">
+                  Email akun: {authSession.user.email}
+                </span>
+              </div>
             </div>
           )}
 
