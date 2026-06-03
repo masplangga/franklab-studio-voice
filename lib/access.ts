@@ -23,6 +23,18 @@ function getSupabaseConfig() {
   return {
     url: process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "") || "",
     anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+    serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || "",
+  };
+}
+
+function getProfileHeaders(token: string) {
+  const { anonKey, serviceRoleKey } = getSupabaseConfig();
+  const apiKey = serviceRoleKey || anonKey;
+  const authToken = serviceRoleKey || token;
+
+  return {
+    apikey: apiKey,
+    Authorization: `Bearer ${authToken}`,
   };
 }
 
@@ -47,14 +59,11 @@ export async function checkActiveUser(req: Request): Promise<AccessCheck> {
 
   try {
     const user = await getUserFromToken(token);
-    const { url, anonKey } = getSupabaseConfig();
+    const { url } = getSupabaseConfig();
     const response = await fetch(
       `${url}/rest/v1/profiles?select=is_active&id=eq.${user.id}&limit=1`,
       {
-        headers: {
-          apikey: anonKey,
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getProfileHeaders(token),
       }
     );
 
