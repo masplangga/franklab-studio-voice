@@ -5,6 +5,10 @@ import { GEMINI_VOICES } from "@/lib/voices";
 const MAX_TTS_PROMPT_LENGTH = 2400;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 8;
+const TTS_MODELS = [
+  "gemini-3.1-flash-tts-preview",
+  "gemini-2.5-flash-tts-preview",
+];
 
 const allowedVoiceIds = new Set(GEMINI_VOICES.map((voice) => voice.id));
 const requestLog = new Map<string, number[]>();
@@ -80,6 +84,52 @@ function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+async function generateAudioWithFallback(
+  ai: GoogleGenAI,
+  text: string,
+  voice: string
+) {
+  let lastError = "";
+
+  for (const model of TTS_MODELS) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: text,
+        config: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voice,
+              },
+            },
+          },
+        },
+      });
+
+      const part = response.candidates?.[0]?.content?.parts?.[0] as
+        | GeminiAudioPart
+        | undefined;
+      const audioData = part?.inlineData?.data || part?.inline_data?.data;
+
+      if (audioData) {
+        return {
+          model,
+          audioData,
+        };
+      }
+
+      lastError = `Model ${model} tidak mengembalikan audio.`;
+    } catch (error: unknown) {
+      lastError = getErrorMessage(error);
+      console.warn(`TTS model fallback: ${model} failed`, lastError);
+    }
+  }
+
+  throw new Error(lastError || "Semua model TTS gagal.");
+}
+
 export async function POST(req: Request) {
   try {
     const access = await checkActiveUser(req);
@@ -133,37 +183,8 @@ export async function POST(req: Request) {
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-flash-tts-preview",
-      contents: text,
-      config: {
-        responseModalities: ["AUDIO"],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: {
-              voiceName: voice,
-            },
-          },
-        },
-      },
-    });
-
-    const part = response.candidates?.[0]?.content?.parts?.[0] as
-      | GeminiAudioPart
-      | undefined;
-    const audioData = part?.inlineData?.data || part?.inline_data?.data;
-
-    if (!audioData) {
-      return Response.json(
-        {
-          success: false,
-          error: "Audio tidak ditemukan pada respons AI.",
-        },
-        { status: 502 }
-      );
-    }
-
-    const pcmBuffer = Buffer.from(audioData, "base64");
+    const result = await generateAudioWithFallback(ai, text, voice);
+    const pcmBuffer = Buffer.from(result.audioData, "base64");
     const wavBuffer = pcmToWav(pcmBuffer);
 
     return new Response(wavBuffer, {
@@ -171,6 +192,7 @@ export async function POST(req: Request) {
         "Content-Type": "audio/wav",
         "Content-Disposition":
           'attachment; filename="franklab-studio-voice.wav"',
+        "X-FrankLab-Model-Used": result.model,
       },
     });
   } catch (error: unknown) {

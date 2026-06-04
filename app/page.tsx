@@ -51,6 +51,7 @@ export default function Home() {
   const [scriptLength, setScriptLength] = useState("30 Detik");
   const [scriptLoading, setScriptLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [modelMessage, setModelMessage] = useState("");
   const [history, setHistory] = useState<GenerationHistory[]>([]);
   const [authSession, setAuthSession] = useState<AuthSession | null>(null);
   const [authReady, setAuthReady] = useState(false);
@@ -172,6 +173,7 @@ export default function Home() {
     try {
       setScriptLoading(true);
       setErrorMessage("");
+      setModelMessage("");
 
       const res = await fetch("/api/script", {
         method: "POST",
@@ -190,6 +192,7 @@ export default function Home() {
       const data = (await res.json()) as {
         success?: boolean;
         script?: string;
+        modelUsed?: string;
         error?: string;
       };
 
@@ -199,6 +202,9 @@ export default function Home() {
       }
 
       setText(data.script.slice(0, MAX_TEXT_LENGTH));
+      if (data.modelUsed) {
+        setModelMessage(`Script dibuat dengan ${data.modelUsed}.`);
+      }
     } catch {
       setErrorMessage("Terjadi error saat membuat script.");
     } finally {
@@ -219,6 +225,7 @@ export default function Home() {
 
     setLoading(true);
     setErrorMessage("");
+    setModelMessage("");
 
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl);
@@ -253,7 +260,11 @@ ${text.trim()}
 
       const blob = await res.blob();
       const nextAudioUrl = URL.createObjectURL(blob);
+      const modelUsed = res.headers.get("X-FrankLab-Model-Used");
       setAudioUrl(nextAudioUrl);
+      if (modelUsed) {
+        setModelMessage(`Audio dibuat dengan ${modelUsed}.`);
+      }
       saveHistory({
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
@@ -621,6 +632,12 @@ ${text.trim()}
             {errorMessage && (
               <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
                 {errorMessage}
+              </div>
+            )}
+
+            {modelMessage && (
+              <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-200">
+                {modelMessage}
               </div>
             )}
 

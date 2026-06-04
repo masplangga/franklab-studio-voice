@@ -12,6 +12,13 @@ const allowedStyles = new Set([
   "Soft Selling",
 ]);
 const allowedLengths = new Set(["10 Detik", "30 Detik", "60 Detik"]);
+const SCRIPT_MODELS = [
+  "gemini-2.5-flash",
+  "gemini-3.1-flash-lite",
+  "gemini-2.5-flash-lite",
+  "gemini-3-flash",
+  "gemini-3.5-flash",
+];
 
 type ScriptRequest = {
   productName?: unknown;
@@ -26,6 +33,33 @@ function cleanText(value: unknown) {
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+async function generateScriptWithFallback(ai: GoogleGenAI, prompt: string) {
+  let lastError = "";
+
+  for (const model of SCRIPT_MODELS) {
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        contents: prompt,
+      });
+
+      if (response.text?.trim()) {
+        return {
+          model,
+          text: response.text.trim(),
+        };
+      }
+
+      lastError = `Model ${model} tidak mengembalikan script.`;
+    } catch (error: unknown) {
+      lastError = getErrorMessage(error);
+      console.warn(`Script model fallback: ${model} failed`, lastError);
+    }
+  }
+
+  throw new Error(lastError || "Semua model script gagal.");
 }
 
 export async function POST(req: Request) {
@@ -92,22 +126,20 @@ Aturan:
 - Tanpa bullet point
 `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-    });
+    const result = await generateScriptWithFallback(ai, prompt);
 
-    if (!response.text) {
-      return NextResponse.json(
-        { success: false, error: "Script tidak ditemukan pada respons AI." },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      script: response.text.trim(),
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        script: result.text,
+        modelUsed: result.model,
+      },
+      {
+        headers: {
+          "X-FrankLab-Model-Used": result.model,
+        },
+      }
+    );
   } catch (error: unknown) {
     console.error("Script generation failed:", getErrorMessage(error));
 
