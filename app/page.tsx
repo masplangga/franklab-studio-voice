@@ -484,6 +484,68 @@ ${text.trim()}
             </div>
           </section>
 
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7d86ff]">
+                  AI Copywriter
+                </p>
+                <h2 className="mt-1 text-base font-black text-white">
+                  Script Generator
+                </h2>
+              </div>
+              <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                Siap VO
+              </span>
+            </div>
+            <div className="grid gap-3">
+              <div className="grid gap-3 md:grid-cols-2">
+                <input
+                  value={productName}
+                  onChange={(event) => setProductName(event.target.value)}
+                  placeholder="Nama produk / layanan"
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
+                />
+                <input
+                  value={productDesc}
+                  onChange={(event) => setProductDesc(event.target.value)}
+                  placeholder="Kelebihan singkat"
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                <select
+                  value={scriptStyle}
+                  onChange={(event) => setScriptStyle(event.target.value)}
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
+                >
+                  <option>Profesional</option>
+                  <option>Santai</option>
+                  <option>Storytelling</option>
+                  <option>UGC</option>
+                  <option>Hard Selling</option>
+                  <option>Soft Selling</option>
+                </select>
+                <select
+                  value={scriptLength}
+                  onChange={(event) => setScriptLength(event.target.value)}
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
+                >
+                  <option>10 Detik</option>
+                  <option>30 Detik</option>
+                  <option>60 Detik</option>
+                </select>
+                <button
+                  onClick={generateScript}
+                  disabled={scriptLoading || !canGenerateScript}
+                  className="rounded-xl bg-[#2f63e9] px-4 py-3 text-sm font-black text-white transition hover:bg-[#3f73ff] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {scriptLoading ? "Membuat..." : "Generate Script"}
+                </button>
+              </div>
+            </div>
+          </section>
+
           <section className="grid gap-5 md:grid-cols-2">
             <div className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
               <div className="mb-4 flex items-center justify-between">
@@ -527,61 +589,6 @@ ${text.trim()}
                     className="w-full accent-[#6d5cff]"
                   />
                 </label>
-              </div>
-            </div>
-
-            <div className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-base font-black text-white">
-                  AI Copywriter
-                </h2>
-                <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
-                  Siap VO
-                </span>
-              </div>
-              <div className="grid gap-3">
-                <input
-                  value={productName}
-                  onChange={(event) => setProductName(event.target.value)}
-                  placeholder="Nama produk / layanan"
-                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
-                />
-                <input
-                  value={productDesc}
-                  onChange={(event) => setProductDesc(event.target.value)}
-                  placeholder="Kelebihan singkat"
-                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
-                />
-                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-                  <select
-                    value={scriptStyle}
-                    onChange={(event) => setScriptStyle(event.target.value)}
-                    className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
-                  >
-                    <option>Profesional</option>
-                    <option>Santai</option>
-                    <option>Storytelling</option>
-                    <option>UGC</option>
-                    <option>Hard Selling</option>
-                    <option>Soft Selling</option>
-                  </select>
-                  <select
-                    value={scriptLength}
-                    onChange={(event) => setScriptLength(event.target.value)}
-                    className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
-                  >
-                    <option>10 Detik</option>
-                    <option>30 Detik</option>
-                    <option>60 Detik</option>
-                  </select>
-                  <button
-                    onClick={generateScript}
-                    disabled={scriptLoading || !canGenerateScript}
-                    className="rounded-xl bg-[#2f63e9] px-4 py-3 text-sm font-black text-white transition hover:bg-[#3f73ff] disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {scriptLoading ? "Membuat..." : "Generate"}
-                  </button>
-                </div>
               </div>
             </div>
           </section>
