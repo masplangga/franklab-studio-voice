@@ -15,15 +15,15 @@ const HISTORY_KEY = "franklab-generation-history";
 const adminContactUrl = process.env.NEXT_PUBLIC_ADMIN_CONTACT_URL || "";
 
 const emotions = [
-  { id: "Netral", label: "Netral" },
-  { id: "Ramah", label: "Ramah" },
-  { id: "Bersemangat", label: "Bersemangat" },
-  { id: "Tenang", label: "Tenang" },
-  { id: "Storytelling", label: "Storytelling" },
-  { id: "Profesional", label: "Profesional" },
-  { id: "Sedih", label: "Sedih" },
-  { id: "Serius", label: "Serius" },
-  { id: "Whisper", label: "Whisper" },
+  { id: "Alami", label: "Alami", icon: "A" },
+  { id: "Ceria", label: "Ceria", icon: ":)" },
+  { id: "Tenang", label: "Tenang", icon: "T" },
+  { id: "Sedih", label: "Sedih", icon: "S" },
+  { id: "Marah", label: "Marah", icon: "M" },
+  { id: "Berbisik", label: "Berbisik", icon: "B" },
+  { id: "Semangat", label: "Semangat", icon: "!" },
+  { id: "Robot", label: "Robot", icon: "R" },
+  { id: "Dramatis", label: "Dramatis", icon: "D" },
 ];
 
 type GenerationHistory = {
@@ -40,7 +40,7 @@ export default function Home() {
     "Selamat pagi semuanya! Selamat datang di FrankLab Studio Voice PRO. Mari bersama-sama menciptakan karya tulisan bernada indah dan berjiwa."
   );
   const [selectedVoice, setSelectedVoice] = useState(GEMINI_VOICES[0]);
-  const [emotion, setEmotion] = useState("Netral");
+  const [emotion, setEmotion] = useState("Alami");
   const [speed, setSpeed] = useState(1);
   const [pitch, setPitch] = useState(1);
   const [audioUrl, setAudioUrl] = useState("");
@@ -317,59 +317,57 @@ ${text.trim()}
   }
 
   return (
-    <main className="min-h-screen bg-[#070b14] text-slate-100">
-      <div className="border-b border-slate-800 bg-slate-950/80">
-        <header className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 md:flex-row md:items-center md:justify-between md:px-6">
+    <main className="min-h-screen bg-[#050918] px-4 py-5 text-[#f7f8ff] md:px-5">
+      <header className="mx-auto flex max-w-[1400px] flex-col gap-5 rounded-[24px] border border-[#1d2844] bg-[#0c1328] px-4 py-4 shadow-[0_24px_80px_rgba(0,0,0,0.34)] md:flex-row md:items-center md:justify-between md:px-5">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#6548ff] text-lg font-black shadow-[0_16px_38px_rgba(101,72,255,0.38)]">
+            mic
+          </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-300">
-              AI Voice SaaS Studio
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl font-extrabold tracking-[-0.02em] text-white md:text-[28px]">
+                FrankLab Studio Voice PRO
+              </h1>
+              <span className="rounded-md border border-[#5d55ff]/45 bg-[#4436d5]/18 px-2.5 py-1 text-[10px] font-bold tracking-[0.14em] text-[#a8a6ff]">
+                NEURAL-TTS
+              </span>
+            </div>
+            <p className="mt-1 text-sm font-medium text-[#91a0bf]">
+              Advanced Neural Speech Synthesis Studio & Ekspresi
             </p>
-            <h1 className="mt-1 text-2xl font-bold md:text-3xl">
-              FrankLab Studio Voice PRO
-            </h1>
-            <p className="mt-1 text-sm text-slate-400">
-              Buat script, pilih karakter suara, lalu ekspor voice over siap pakai.
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
-              <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[#9aa8c9]">
+              <span className="rounded-full border border-[#23304e] bg-[#111a32] px-3 py-1">
                 {authSession.user.email}
               </span>
               <button
                 onClick={logout}
-                className="rounded-full border border-slate-700 px-3 py-1 text-slate-300 transition hover:bg-slate-800"
+                className="rounded-full border border-[#33405e] px-3 py-1 text-[#d7def5] transition hover:bg-[#16213d]"
               >
                 Keluar
               </button>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-3 gap-3 rounded-2xl border border-slate-800 bg-slate-900/70 p-3 text-center">
-            <div>
-              <p className="text-lg font-bold text-white">5</p>
-              <p className="text-[11px] text-slate-500">Riwayat lokal</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-white">10</p>
-              <p className="text-[11px] text-slate-500">Model suara</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-white">{MAX_TEXT_LENGTH}</p>
-              <p className="text-[11px] text-slate-500">Karakter</p>
-            </div>
-          </div>
-        </header>
-      </div>
+        <div className="flex w-fit items-center gap-3 rounded-[18px] border border-[#22304e] bg-[#080e20] px-4 py-3 text-xs">
+          <span className="h-2 w-2 rounded-full bg-[#00a878]" />
+          <span className="text-[#8e9dbd]">FrankLab Voice PRO 1.2:</span>
+          <span className="font-black tracking-[0.18em] text-[#9d9cff]">
+            ONLINE
+          </span>
+        </div>
+      </header>
 
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 py-5 md:px-6 lg:grid-cols-12">
-        <section className="space-y-5 lg:col-span-8">
+      <div className="mx-auto grid max-w-[1400px] grid-cols-1 gap-5 py-5 lg:grid-cols-[1fr_440px]">
+        <section className="space-y-5">
           {!accountActive && (
-            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 text-amber-100">
-              <h2 className="text-lg font-bold">
+            <div className="rounded-[22px] border border-amber-500/35 bg-amber-500/10 p-5 text-amber-100">
+              <h2 className="text-lg font-black">
                 {accountLoading
                   ? "Memeriksa status akun..."
                   : "Akun menunggu aktivasi"}
               </h2>
-              <p className="mt-2 text-sm leading-6 text-amber-100/80">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-100/85">
                 Kamu sudah login, tetapi fitur generate belum aktif. Hubungi admin
                 untuk aktivasi akun setelah pembayaran atau persetujuan manual.
               </p>
@@ -379,7 +377,7 @@ ${text.trim()}
                     href={adminContactUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-amber-300"
+                    className="rounded-xl bg-amber-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-amber-300"
                   >
                     Hubungi Admin
                   </a>
@@ -395,97 +393,20 @@ ${text.trim()}
             </div>
           )}
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
-            <div className="mb-5 flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                  Langkah 1
-                </p>
-                <h2 className="mt-1 text-lg font-bold">AI Copywriter</h2>
-                <p className="mt-1 text-sm text-slate-400">
-                  Ubah deskripsi produk menjadi naskah iklan singkat.
-                </p>
-              </div>
-              <span className="w-fit rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300">
-                Siap untuk voice over
-              </span>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-2">
-                <span className="text-xs font-semibold text-slate-300">
-                  Nama produk atau layanan
-                </span>
-                <input
-                  value={productName}
-                  onChange={(event) => setProductName(event.target.value)}
-                  placeholder="Contoh: Kopi Susu Arunika"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition placeholder:text-slate-600 focus:border-blue-400"
-                />
-              </label>
-
-              <label className="space-y-2">
-                <span className="text-xs font-semibold text-slate-300">
-                  Kelebihan singkat
-                </span>
-                <input
-                  value={productDesc}
-                  onChange={(event) => setProductDesc(event.target.value)}
-                  placeholder="Contoh: creamy, gula aren asli, siap antar"
-                  className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition placeholder:text-slate-600 focus:border-blue-400"
-                />
-              </label>
-            </div>
-
-            <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1fr_auto]">
-              <select
-                value={scriptStyle}
-                onChange={(event) => setScriptStyle(event.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-400"
-              >
-                <option>Profesional</option>
-                <option>Santai</option>
-                <option>Storytelling</option>
-                <option>UGC</option>
-                <option>Hard Selling</option>
-                <option>Soft Selling</option>
-              </select>
-
-              <select
-                value={scriptLength}
-                onChange={(event) => setScriptLength(event.target.value)}
-                className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none focus:border-blue-400"
-              >
-                <option>10 Detik</option>
-                <option>30 Detik</option>
-                <option>60 Detik</option>
-              </select>
-
-              <button
-                onClick={generateScript}
-                disabled={scriptLoading || !canGenerateScript}
-                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {scriptLoading ? "Membuat..." : "Generate Script"}
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                  Langkah 2
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7d86ff]">
+                  Manuskrip Suara (Teks)
                 </p>
-                <h2 className="mt-1 text-lg font-bold">Editor Naskah</h2>
               </div>
-              <div className="min-w-28 text-right">
-                <p className="text-xs text-slate-400">
-                  {text.length} / {MAX_TEXT_LENGTH}
+              <div className="min-w-36 text-right">
+                <p className="font-mono text-xs text-[#7f8db0]">
+                  {text.length} / {MAX_TEXT_LENGTH} karakter
                 </p>
-                <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+                <div className="mt-3 h-1.5 rounded-full bg-[#26334f]">
                   <div
-                    className="h-1.5 rounded-full bg-blue-500"
+                    className="h-1.5 rounded-full bg-[#377dff]"
                     style={{ width: `${usagePercent}%` }}
                   />
                 </div>
@@ -497,69 +418,85 @@ ${text.trim()}
               onChange={(event) => setText(event.target.value)}
               maxLength={MAX_TEXT_LENGTH}
               placeholder="Ketik atau tempelkan naskah di sini..."
-              className="min-h-64 w-full resize-none rounded-xl border border-slate-800 bg-slate-950 p-4 text-base leading-relaxed text-slate-100 outline-none placeholder:text-slate-600 focus:border-blue-400"
+              className="min-h-[150px] w-full resize-none bg-transparent text-[20px] font-medium leading-8 text-white outline-none placeholder:text-[#53607e]"
             />
 
-            <div className="mt-4 flex flex-wrap justify-between gap-3">
-              <button
-                onClick={() => setText("")}
-                className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
-              >
-                Bersihkan
-              </button>
-
-              <button
-                onClick={() =>
-                  setText(
-                    "Hari berganti hari, rahasia peradaban kuno akhirnya mulai terkuak. Apa yang sebenarnya tersimpan di dasar laut?"
-                  )
-                }
-                className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-800"
-              >
-                Pakai Contoh
-              </button>
-            </div>
-          </div>
-
-          <div className="grid gap-5 md:grid-cols-2">
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
-              <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                  Langkah 3
-                </p>
-                <h2 className="mt-1 text-lg font-bold">Ekspresi</h2>
+            <div className="mt-6 border-t border-[#22304d] pt-4">
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setText("")}
+                  className="rounded-xl border border-[#24324f] bg-[#142039] px-4 py-2 text-xs font-semibold text-[#aab7d5] transition hover:bg-[#1a2845]"
+                >
+                  Bersihkan
+                </button>
+                <button
+                  onClick={() =>
+                    setText(
+                      "Hari berganti hari, rahasia peradaban kuno akhirnya mulai terkuak. Apa yang sebenarnya tersimpan di dasar laut?"
+                    )
+                  }
+                  className="rounded-xl border border-[#24324f] bg-[#142039] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#1a2845]"
+                >
+                  Reset Contoh
+                </button>
               </div>
+            </div>
+          </section>
 
-              <div className="grid grid-cols-3 gap-2">
-                {emotions.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setEmotion(item.id)}
-                    className={`min-h-12 rounded-xl border px-3 py-2 text-sm transition ${
-                      emotion === item.id
-                        ? "border-blue-400 bg-blue-500/15 text-blue-100"
-                        : "border-slate-800 bg-slate-950 text-slate-300 hover:border-slate-600"
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-black text-white">
+                  Ekspresi Emosional
+                </h2>
+                <p className="mt-1 text-xs font-medium text-[#91a0bf]">
+                  Berikan getaran perasaan yang disesuaikan dalam intonasi ucapan.
+                </p>
+              </div>
+              <span className="rounded-xl border border-[#29365a] bg-[#17213b] px-3 py-1.5 font-mono text-xs text-[#a8b7d8]">
+                9 Variasi Ekspresi
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 md:grid-cols-5 xl:grid-cols-9">
+              {emotions.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setEmotion(item.id)}
+                  className={`flex min-h-[82px] flex-col items-center justify-center rounded-[16px] border p-3 text-center transition ${
+                    emotion === item.id
+                      ? "border-[#6d5cff] bg-[#1a2350] shadow-[0_0_0_1px_rgba(109,92,255,0.35)]"
+                      : "border-[#1e2b49] bg-[#0b1225] hover:border-[#3a4770]"
+                  }`}
+                >
+                  <span
+                    className={`text-lg font-black ${
+                      emotion === item.id ? "text-[#b9b5ff]" : "text-[#d7def3]"
                     }`}
                   >
+                    {item.icon}
+                  </span>
+                  <span className="mt-2 text-xs font-bold text-[#cbd5ed]">
                     {item.label}
-                  </button>
-                ))}
-              </div>
-            </section>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
-              <div className="mb-4">
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-                  Langkah 4
-                </p>
-                <h2 className="mt-1 text-lg font-bold">Kontrol Suara</h2>
+          <section className="grid gap-5 md:grid-cols-2">
+            <div className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-base font-black text-white">Kontrol Suara</h2>
+                <span className="rounded-full border border-[#273554] px-3 py-1 font-mono text-xs text-[#8796b7]">
+                  {speed.toFixed(1)}x / {pitch.toFixed(1)}x
+                </span>
               </div>
-
               <div className="space-y-5">
                 <label className="block">
-                  <div className="mb-2 flex justify-between text-sm">
+                  <div className="mb-2 flex justify-between text-sm text-[#b5c1dd]">
                     <span>Kecepatan</span>
-                    <span className="font-mono text-blue-300">
+                    <span className="font-mono text-[#8c99ff]">
                       {speed.toFixed(1)}x
                     </span>
                   </div>
@@ -570,14 +507,13 @@ ${text.trim()}
                     step="0.1"
                     value={speed}
                     onChange={(event) => setSpeed(Number(event.target.value))}
-                    className="w-full accent-blue-500"
+                    className="w-full accent-[#6d5cff]"
                   />
                 </label>
-
                 <label className="block">
-                  <div className="mb-2 flex justify-between text-sm">
+                  <div className="mb-2 flex justify-between text-sm text-[#b5c1dd]">
                     <span>Pitch</span>
-                    <span className="font-mono text-blue-300">
+                    <span className="font-mono text-[#8c99ff]">
                       {pitch.toFixed(1)}x
                     </span>
                   </div>
@@ -588,24 +524,82 @@ ${text.trim()}
                     step="0.1"
                     value={pitch}
                     onChange={(event) => setPitch(Number(event.target.value))}
-                    className="w-full accent-blue-500"
+                    className="w-full accent-[#6d5cff]"
                   />
                 </label>
               </div>
-            </section>
-          </div>
+            </div>
+
+            <div className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-base font-black text-white">
+                  AI Copywriter
+                </h2>
+                <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                  Siap VO
+                </span>
+              </div>
+              <div className="grid gap-3">
+                <input
+                  value={productName}
+                  onChange={(event) => setProductName(event.target.value)}
+                  placeholder="Nama produk / layanan"
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
+                />
+                <input
+                  value={productDesc}
+                  onChange={(event) => setProductDesc(event.target.value)}
+                  placeholder="Kelebihan singkat"
+                  className="rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-sm text-white outline-none placeholder:text-[#52617d] focus:border-[#6d5cff]"
+                />
+                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
+                  <select
+                    value={scriptStyle}
+                    onChange={(event) => setScriptStyle(event.target.value)}
+                    className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
+                  >
+                    <option>Profesional</option>
+                    <option>Santai</option>
+                    <option>Storytelling</option>
+                    <option>UGC</option>
+                    <option>Hard Selling</option>
+                    <option>Soft Selling</option>
+                  </select>
+                  <select
+                    value={scriptLength}
+                    onChange={(event) => setScriptLength(event.target.value)}
+                    className="rounded-xl border border-[#24324f] bg-[#090f21] px-3 py-3 text-sm text-white outline-none focus:border-[#6d5cff]"
+                  >
+                    <option>10 Detik</option>
+                    <option>30 Detik</option>
+                    <option>60 Detik</option>
+                  </select>
+                  <button
+                    onClick={generateScript}
+                    disabled={scriptLoading || !canGenerateScript}
+                    className="rounded-xl bg-[#2f63e9] px-4 py-3 text-sm font-black text-white transition hover:bg-[#3f73ff] disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {scriptLoading ? "Membuat..." : "Generate"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
         </section>
 
-        <aside className="space-y-5 lg:col-span-4">
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+        <aside className="space-y-5 lg:sticky lg:top-5 lg:self-start">
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-5">
             <div className="mb-4">
-              <h2 className="text-lg font-bold">Model Suara</h2>
-              <p className="mt-1 text-sm text-slate-400">
-                Pilih karakter vokal untuk hasil audio.
+              <h2 className="text-lg font-black text-white">
+                Perpustakaan Model Suara
+              </h2>
+              <p className="mt-1 text-xs font-medium leading-5 text-[#91a0bf]">
+                Pilih model karakter vokal Neural premium untuk drama, pengumuman,
+                atau presentasi Anda.
               </p>
             </div>
 
-            <div className="max-h-[470px] space-y-3 overflow-y-auto pr-1">
+            <div className="max-h-[380px] space-y-3 overflow-y-auto pr-1">
               {GEMINI_VOICES.map((voice) => (
                 <button
                   key={voice.id}
@@ -623,9 +617,9 @@ ${text.trim()}
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
-            <h2 className="text-lg font-bold">Generate Audio</h2>
-            <p className="mt-1 text-sm text-slate-400">
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-5">
+            <h2 className="text-lg font-black text-white">Generate Audio</h2>
+            <p className="mt-1 text-sm text-[#91a0bf]">
               Suara: {selectedVoice.name} - {emotion}
             </p>
 
@@ -644,9 +638,9 @@ ${text.trim()}
             <button
               onClick={generateAudio}
               disabled={!canGenerateAudio}
-              className="mt-4 w-full rounded-xl bg-blue-600 px-5 py-4 text-sm font-bold text-white shadow-lg shadow-blue-950/40 transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#2f63e9] px-5 py-4 text-sm font-black uppercase tracking-wide text-white shadow-[0_18px_48px_rgba(47,99,233,0.28)] transition hover:bg-[#3f73ff] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? "Menyusun Audio..." : "Generate Audio"}
+              {loading ? "Menyusun Audio..." : "Generate Audio Suara"}
             </button>
 
             {audioUrl && (
@@ -655,7 +649,7 @@ ${text.trim()}
                 <a
                   href={audioUrl}
                   download="franklab-studio-voice.wav"
-                  className="block rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-center text-sm font-semibold text-emerald-300 transition hover:bg-slate-800"
+                  className="block rounded-xl border border-[#24324f] bg-[#090f21] px-4 py-3 text-center text-sm font-bold text-emerald-300 transition hover:bg-[#142039]"
                 >
                   Download WAV
                 </a>
@@ -663,16 +657,16 @@ ${text.trim()}
             )}
           </section>
 
-          <section className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5">
+          <section className="rounded-[24px] border border-[#1d2844] bg-[#111a30] p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold">Riwayat Lokal</h2>
-              <span className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-400">
+              <h2 className="text-lg font-black text-white">Riwayat Lokal</h2>
+              <span className="rounded-full border border-[#273554] px-3 py-1 text-xs text-[#8796b7]">
                 MVP
               </span>
             </div>
 
             {history.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-[#657393]">
                 Hasil audio yang dibuat di browser ini akan muncul di sini.
               </p>
             ) : (
@@ -680,12 +674,12 @@ ${text.trim()}
                 {history.map((item) => (
                   <div
                     key={item.id}
-                    className="rounded-xl border border-slate-800 bg-slate-950 p-3"
+                    className="rounded-xl border border-[#1e2b49] bg-[#090f21] p-3"
                   >
-                    <p className="line-clamp-1 text-sm font-semibold">
+                    <p className="line-clamp-1 text-sm font-bold text-white">
                       {item.title}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-[#7383a4]">
                       {item.voiceName} - {item.emotion} - {item.characterCount} karakter
                     </p>
                   </div>
