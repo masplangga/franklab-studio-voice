@@ -15,15 +15,15 @@ const HISTORY_KEY = "franklab-generation-history";
 const adminContactUrl = process.env.NEXT_PUBLIC_ADMIN_CONTACT_URL || "";
 
 const emotions = [
-  { id: "Alami", label: "Alami", icon: "A" },
-  { id: "Ceria", label: "Ceria", icon: ":)" },
-  { id: "Tenang", label: "Tenang", icon: "T" },
-  { id: "Sedih", label: "Sedih", icon: "S" },
-  { id: "Marah", label: "Marah", icon: "M" },
-  { id: "Berbisik", label: "Berbisik", icon: "B" },
-  { id: "Semangat", label: "Semangat", icon: "!" },
-  { id: "Robot", label: "Robot", icon: "R" },
-  { id: "Dramatis", label: "Dramatis", icon: "D" },
+  { id: "Alami", label: "Alami", icon: "🗣️" },
+  { id: "Ceria", label: "Ceria", icon: "😊" },
+  { id: "Tenang", label: "Tenang", icon: "🧘" },
+  { id: "Sedih", label: "Sedih", icon: "😢" },
+  { id: "Marah", label: "Marah", icon: "😡" },
+  { id: "Berbisik", label: "Berbisik", icon: "🤫" },
+  { id: "Semangat", label: "Semangat", icon: "🥳" },
+  { id: "Robot", label: "Robot", icon: "🤖" },
+  { id: "Dramatis", label: "Dramatis", icon: "🎭" },
 ];
 
 type GenerationHistory = {
